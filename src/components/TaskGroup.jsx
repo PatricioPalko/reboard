@@ -48,7 +48,7 @@ export const TaskGroup = ({ boardId }) => {
       <Flex direction="column" background="green.100" p={6} rounded={6}>
         <Button colorScheme="green">
           <AddIcon w={3} h={3} mr={2} />
-          Add another list
+          Add another lists
         </Button>
       </Flex>
     </Flex>
