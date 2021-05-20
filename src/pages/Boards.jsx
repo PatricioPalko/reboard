@@ -20,7 +20,9 @@ const Boards = () => {
 
   return (
     <Box h="100vh">
-      <Center h="100%" />
+      <Center h="100%">
+        <h1>hello</h1>
+      </Center>
     </Box>
   )
 }
