@@ -1,7 +1,8 @@
 import * as React from 'react'
-import { Flex, Heading, Button, Text } from '@chakra-ui/react'
+import { Flex, Heading, Button } from '@chakra-ui/react'
 import { AddIcon } from '@chakra-ui/icons'
 import { getTaskGroups } from '../utils/api'
+import { Task } from './Task'
 
 // eslint-disable-next-line react/prop-types
 export const TaskGroup = ({ boardId }) => {
@@ -28,7 +29,7 @@ export const TaskGroup = ({ boardId }) => {
             alignItems="center"
             justifyContent="center"
             bg="red.200"
-            p={6}
+            p={3}
             mb={2}
             rounded={6}
           >
@@ -36,9 +37,7 @@ export const TaskGroup = ({ boardId }) => {
               {group.name}
             </Heading>
           </Flex>
-          <Flex direction="column" bg="gray.200" p={9} mb={2}>
-            <Text>Future task component</Text>
-          </Flex>
+          <Task boardId={boardId} />
           <Button colorScheme="green">
             <AddIcon w={3} h={3} mr={2} /> Add another task comp
           </Button>
