@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { Box, Center, Heading, Container, Grid, GridItem, Input, Button } from '@chakra-ui/react'
 import { Link } from 'react-router-dom'
-import { AddIcon } from '@chakra-ui/icons'
-import { createBoard, getBoards } from '../utils/api'
+import { AddIcon, DeleteIcon } from '@chakra-ui/icons'
+import { createBoard, getBoards, removeBoard } from '../utils/api'
 
 const Boards = () => {
   // const [status, setStatus] = React.useState('loading')
@@ -103,6 +103,21 @@ const Boards = () => {
                     borderColor="blue.400"
                     fontWeight="semibold"
                   >
+                    <Button
+                      type="button"
+                      pos="absolute"
+                      right="0"
+                      top="0"
+                      backgroundColor="transparent"
+                      size="xs"
+                      color="gray.500"
+                      onClick={(event) => {
+                        event.preventDefault()
+                        removeBoard(item.id)
+                      }}
+                    >
+                      <DeleteIcon />
+                    </Button>
                     {item.name}
                   </Box>
                 )
