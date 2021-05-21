@@ -3,7 +3,6 @@ import { Box, Center, Heading, Container, Grid, GridItem, Input, Button } from '
 import { Link } from 'react-router-dom'
 import { AddIcon } from '@chakra-ui/icons'
 import { createBoard, getBoards } from '../utils/api'
-import database from '../../data/database.json'
 
 const Boards = () => {
   // const [status, setStatus] = React.useState('loading')
@@ -13,14 +12,14 @@ const Boards = () => {
   React.useEffect(() => {
     try {
       const fetchData = async () => {
-        const data = await getBoards(database)
+        const data = await getBoards()
         setBoards(data)
       }
       fetchData()
     } catch (e) {
       // do nothing
     }
-  }, [])
+  }, [boards])
 
   return (
     <>
