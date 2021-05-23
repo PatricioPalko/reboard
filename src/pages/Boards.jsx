@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { Box, Center, Heading, Container, Grid, GridItem, Input, Button } from '@chakra-ui/react'
 import { Link } from 'react-router-dom'
-import { AddIcon } from '@chakra-ui/icons'
-import { createBoard, getBoards } from '../utils/api'
+import { AddIcon, DeleteIcon } from '@chakra-ui/icons'
+import { createBoard, getBoards, removeBoard } from '../utils/api'
 import { ModalWindow } from '../components/ModalWindow'
 
 const Boards = () => {
