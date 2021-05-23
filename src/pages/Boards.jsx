@@ -3,6 +3,7 @@ import { Box, Center, Heading, Container, Grid, GridItem, Input, Button } from '
 import { Link } from 'react-router-dom'
 import { AddIcon } from '@chakra-ui/icons'
 import { createBoard, getBoards } from '../utils/api'
+import { ModalWindow } from '../components/ModalWindow'
 
 const Boards = () => {
   // const [status, setStatus] = React.useState('loading')
@@ -103,6 +104,7 @@ const Boards = () => {
                     borderColor="blue.400"
                     fontWeight="semibold"
                   >
+                    <ModalWindow boardTitle={item.name} id={item.id} />
                     {item.name}
                   </Box>
                 )
