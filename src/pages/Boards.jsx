@@ -105,6 +105,21 @@ const Boards = () => {
                     fontWeight="semibold"
                   >
                     <ModalWindow boardTitle={item.name} id={item.id} />
+                    <Button
+                      type="button"
+                      pos="absolute"
+                      right="0"
+                      top="0"
+                      backgroundColor="transparent"
+                      size="xs"
+                      color="gray.500"
+                      onClick={(event) => {
+                        event.preventDefault()
+                        removeBoard(item.id)
+                      }}
+                    >
+                      <DeleteIcon />
+                    </Button>
                     {item.name}
                   </Box>
                 )
