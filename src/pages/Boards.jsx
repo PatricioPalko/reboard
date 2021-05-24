@@ -4,23 +4,13 @@ import { Link } from 'react-router-dom'
 import { AddIcon, DeleteIcon } from '@chakra-ui/icons'
 import { createBoard, getBoards, removeBoard } from '../utils/api'
 import { ModalWindow } from '../components/ModalWindow'
+import { useData } from '../hooks/useData'
 
 const Boards = () => {
   // const [status, setStatus] = React.useState('loading')
-  const [boards, setBoards] = React.useState([])
   const [boardText, setBoardText] = React.useState('')
 
-  React.useEffect(() => {
-    try {
-      const fetchData = async () => {
-        const data = await getBoards()
-        setBoards(data)
-      }
-      fetchData()
-    } catch (e) {
-      // do nothing
-    }
-  }, [boards])
+  const { data: boards } = useData(getBoards)
 
   return (
     <>

@@ -2,25 +2,19 @@ import * as React from 'react'
 import { Flex, Heading, Button, Text, Input } from '@chakra-ui/react'
 import { AddIcon } from '@chakra-ui/icons'
 import { getTaskGroups, createTask, getTasks } from '../utils/api'
+import { useData } from '../hooks/useData'
+
 // eslint-disable-next-line react/prop-types
 export const TaskGroup = ({ boardId }) => {
   // const [status, setStatus] = React.useState('loading')
-  const [groups, setGroup] = React.useState([])
   const [titleText, setTitleText] = React.useState('')
-  const [tasks, setTasks] = React.useState([])
-  React.useEffect(() => {
-    try {
-      const fetchData = async () => {
-        const data = await getTaskGroups(boardId)
-        const taskData = await getTasks(boardId)
-        setGroup(data)
-        setTasks(taskData)
-      }
-      fetchData()
-    } catch (e) {
-      // donothing
-    }
-  }, [boardId])
+
+  const fetchTaskGroups = React.useCallback(() => getTaskGroups(boardId), [boardId])
+  const fetchTasks = React.useCallback(() => getTasks(boardId), [boardId])
+
+  const { data: groups, refetch: refetchGroups } = useData(fetchTaskGroups)
+  const { data: tasks, refetch: refetchTasks } = useData(fetchTasks)
+
   return (
     <Flex height="100vh" alignItems="center" justifyContent="center">
       {groups.map((group) => (
@@ -63,9 +57,11 @@ export const TaskGroup = ({ boardId }) => {
           />
           <Button
             m={2}
-            onClick={() => {
+            onClick={async () => {
               if (titleText) {
-                createTask(boardId, { name: titleText })
+                await createTask(boardId, group.id, { name: titleText })
+                refetchGroups()
+                refetchTasks()
                 setTitleText('')
               }
             }}
