@@ -14,11 +14,14 @@ import {
 import { EditIcon } from '@chakra-ui/icons'
 import * as React from 'react'
 import PropTypes from 'prop-types'
-import { updateBoard } from '../utils/api'
+import { updateBoard, getBoards } from '../utils/api'
+import { useData } from '../hooks'
 
 export function ModalWindow({ boardTitle, id }) {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [boardNewText, setBoardNewText] = React.useState('')
+  const fetchBoards = React.useCallback(() => getBoards(), [])
+  const { refetch: refetchBoards } = useData(fetchBoards)
   const toast = useToast()
 
   return (
@@ -59,9 +62,10 @@ export function ModalWindow({ boardTitle, id }) {
             <Button
               colorScheme="green"
               mr={3}
-              onClick={() => {
+              onClick={async () => {
                 if (boardNewText) {
-                  updateBoard(id, { name: boardNewText })
+                  await updateBoard(id, { name: boardNewText })
+                  refetchBoards()
                   setBoardNewText('')
                   onClose()
                   toast({

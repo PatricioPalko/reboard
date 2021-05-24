@@ -9,8 +9,9 @@ import { useData } from '../hooks/useData'
 const Boards = () => {
   // const [status, setStatus] = React.useState('loading')
   const [boardText, setBoardText] = React.useState('')
+  const fetchBoards = React.useCallback(() => getBoards(), [])
 
-  const { data: boards } = useData(getBoards)
+  const { data: boards, refetch: refetchBoards } = useData(fetchBoards)
 
   return (
     <>
@@ -53,9 +54,10 @@ const Boards = () => {
                   color: 'white',
                 }}
                 leftIcon={<AddIcon />}
-                onClick={() => {
+                onClick={async () => {
                   if (boardText) {
-                    createBoard(boardText)
+                    await createBoard(boardText)
+                    refetchBoards()
                     setBoardText('')
                   }
                 }}
@@ -73,6 +75,7 @@ const Boards = () => {
               {boards?.map((item) => {
                 return (
                   <Box
+                    boardId={item.id}
                     as={Link}
                     to={String(item.id)}
                     pos="relative"
@@ -103,9 +106,10 @@ const Boards = () => {
                       backgroundColor="transparent"
                       size="xs"
                       color="gray.500"
-                      onClick={(event) => {
+                      onClick={async (event) => {
                         event.preventDefault()
-                        removeBoard(item.id)
+                        await removeBoard(item.id)
+                        refetchBoards()
                       }}
                     >
                       <DeleteIcon />
