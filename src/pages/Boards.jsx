@@ -4,23 +4,14 @@ import { Link } from 'react-router-dom'
 import { AddIcon, DeleteIcon } from '@chakra-ui/icons'
 import { createBoard, getBoards, removeBoard } from '../utils/api'
 import { ModalWindow } from '../components/ModalWindow'
+import { useData } from '../hooks/useData'
 
 const Boards = () => {
   // const [status, setStatus] = React.useState('loading')
-  const [boards, setBoards] = React.useState([])
   const [boardText, setBoardText] = React.useState('')
+  const fetchBoards = React.useCallback(() => getBoards(), [])
 
-  React.useEffect(() => {
-    try {
-      const fetchData = async () => {
-        const data = await getBoards()
-        setBoards(data)
-      }
-      fetchData()
-    } catch (e) {
-      // do nothing
-    }
-  }, [boards])
+  const { data: boards, refetch: refetchBoards } = useData(fetchBoards)
 
   return (
     <>
@@ -63,9 +54,10 @@ const Boards = () => {
                   color: 'white',
                 }}
                 leftIcon={<AddIcon />}
-                onClick={() => {
+                onClick={async () => {
                   if (boardText) {
-                    createBoard(boardText)
+                    await createBoard(boardText)
+                    refetchBoards()
                     setBoardText('')
                   }
                 }}
@@ -83,6 +75,7 @@ const Boards = () => {
               {boards?.map((item) => {
                 return (
                   <Box
+                    boardId={item.id}
                     as={Link}
                     to={String(item.id)}
                     pos="relative"
@@ -113,9 +106,10 @@ const Boards = () => {
                       backgroundColor="transparent"
                       size="xs"
                       color="gray.500"
-                      onClick={(event) => {
+                      onClick={async (event) => {
                         event.preventDefault()
-                        removeBoard(item.id)
+                        await removeBoard(item.id)
+                        refetchBoards()
                       }}
                     >
                       <DeleteIcon />
