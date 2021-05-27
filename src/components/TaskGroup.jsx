@@ -1,29 +1,56 @@
+/* eslint-disable react/prop-types */
 import * as React from 'react'
 import { Flex, Heading, Button, Text, Input } from '@chakra-ui/react'
 import { AddIcon } from '@chakra-ui/icons'
-import { getTaskGroups, createTask, getTasks } from '../utils/api'
+import { createTask, createTaskGroup } from '../utils/api'
+
 // eslint-disable-next-line react/prop-types
-export const TaskGroup = ({ boardId }) => {
+export const TaskGroup = ({
+  boardId,
+  groupsCollection,
+  refetchGroups,
+  tasksCollection,
+  refetchTasks,
+}) => {
   // const [status, setStatus] = React.useState('loading')
-  const [groups, setGroup] = React.useState([])
-  const [titleText, setTitleText] = React.useState('')
-  const [tasks, setTasks] = React.useState([])
+  const [taskGroupName, setTaskGroupName] = React.useState('')
+  const [taskGroups, setTaskGroups] = React.useState([{ id: '', name: '', tasks: [] }])
+
   React.useEffect(() => {
-    try {
-      const fetchData = async () => {
-        const data = await getTaskGroups(boardId)
-        const taskData = await getTasks(boardId)
-        setGroup(data)
-        setTasks(taskData)
-      }
-      fetchData()
-    } catch (e) {
-      // donothing
+    const taskGroupsCollection = []
+
+    groupsCollection.forEach((group) => {
+      const { id, name } = group
+      const tasks = tasksCollection.filter((task) => group.taskIds.includes(task.id))
+      const newTaskGroup = { id, name, tasks }
+      taskGroupsCollection.push(newTaskGroup)
+    })
+    setTaskGroups(taskGroupsCollection)
+  }, [groupsCollection, tasksCollection])
+
+  const addNewTaskGroup = async (name) => {
+    if (name) {
+      await createTaskGroup(boardId, name)
+      refetchGroups()
+      refetchTasks()
+      setTaskGroupName('')
     }
-  }, [boardId])
+  }
+
+  const addNewTask = async (e, groupId) => {
+    e.preventDefault()
+    const titleText = e.target.elements[`taskTitle-${groupId}`].value
+    if (titleText) {
+      await createTask(boardId, groupId, { name: titleText })
+      refetchGroups()
+      refetchTasks()
+      e.target.elements[`taskTitle-${groupId}`].value = ''
+    }
+  }
+
   return (
     <Flex height="100vh" alignItems="center" justifyContent="center">
-      {groups.map((group) => (
+      {taskGroups.map((group) => (
         <Flex
           direction="column"
           background="green.100"
@@ -46,37 +73,30 @@ export const TaskGroup = ({ boardId }) => {
               {group.name}
             </Heading>
           </Flex>
-          {tasks
-            .filter((task) => group.taskIds.includes(task.id))
-            .map((task) => {
-              return (
-                <Flex direction="column" bg="gray.200" p={9} mb={2} key={task.id}>
-                  <Text key={task.id}>{task.name}</Text>
-                </Flex>
-              )
-            })}
-          <Input
-            type="text"
-            placeholder="Enter a title"
-            onChange={(e) => setTitleText(e.target.value)}
-            value={titleText}
-          />
-          <Button
-            m={2}
-            onClick={() => {
-              if (titleText) {
-                createTask(boardId, { name: titleText })
-                setTitleText('')
-              }
-            }}
-          >
-            <AddIcon w={3} h={3} mr={2} />
-            Add task
-          </Button>
+          {group.tasks.map((task) => {
+            return (
+              <Flex direction="column" bg="gray.200" p={9} mb={2} key={task.id}>
+                <Text key={task.id}>{task.name}</Text>
+              </Flex>
+            )
+          })}
+          <form onSubmit={(e) => addNewTask(e, group.id)}>
+            <Input type="text" placeholder="Enter a title" id={`taskTitle-${group.id}`} />
+            <Button type="submit" m={2}>
+              <AddIcon w={3} h={3} mr={2} />
+              Add task
+            </Button>
+          </form>
         </Flex>
       ))}
       <Flex direction="column" background="green.100" p={6} rounded={6}>
-        <Button colorScheme="green">
+        <Input
+          type="text"
+          placeholder="Enter name for task list"
+          onChange={(e) => setTaskGroupName(e.target.value)}
+          value={taskGroupName}
+        />
+        <Button colorScheme="green" onClick={() => addNewTaskGroup(taskGroupName)}>
           <AddIcon w={3} h={3} mr={2} />
           Add another lists
         </Button>
