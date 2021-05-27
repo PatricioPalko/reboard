@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 import * as React from 'react'
 import { Flex, Heading, Button, Text, Input } from '@chakra-ui/react'
-import { AddIcon } from '@chakra-ui/icons'
-import { createTask, createTaskGroup } from '../utils/api'
+import { AddIcon, DeleteIcon } from '@chakra-ui/icons'
+import { createTask, createTaskGroup, removeTaskGroup } from '../utils/api'
 
 // eslint-disable-next-line react/prop-types
 export const TaskGroup = ({
@@ -60,6 +60,18 @@ export const TaskGroup = ({
           ml={2}
           key={group.id}
         >
+          <Flex justifyContent="flex-end">
+            <Button
+              type="button"
+              onClick={async (event) => {
+                event.preventDefault()
+                await removeTaskGroup(group.id)
+                refetchGroups()
+              }}
+            >
+              <DeleteIcon />
+            </Button>
+          </Flex>
           <Flex
             direction="column"
             alignItems="center"
