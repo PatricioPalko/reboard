@@ -1,118 +1,87 @@
-/* eslint-disable react/prop-types */
 import * as React from 'react'
-import { Flex, Heading, Button, Text, Input } from '@chakra-ui/react'
-import { AddIcon, DeleteIcon } from '@chakra-ui/icons'
-import { createTask, createTaskGroup, removeTaskGroup } from '../utils/api'
+import { Flex, Button, Input, useToast } from '@chakra-ui/react'
+import { AddIcon } from '@chakra-ui/icons'
+import PropTypes from 'prop-types'
+import {
+  createTask,
+  createTaskGroup,
+  getTaskGroups,
+  removeTaskGroup,
+  updateTaskGroup,
+} from '../utils/api'
+import { useData } from '../hooks'
+import { TaskGroupPreview } from './TaskGroupPreview'
 
-// eslint-disable-next-line react/prop-types
-export const TaskGroup = ({
-  boardId,
-  groupsCollection,
-  refetchGroups,
-  tasksCollection,
-  refetchTasks,
-}) => {
+export const TaskGroup = ({ boardId }) => {
   // const [status, setStatus] = React.useState('loading')
   const [taskGroupName, setTaskGroupName] = React.useState('')
-  const [taskGroups, setTaskGroups] = React.useState([{ id: '', name: '', tasks: [] }])
-
-  React.useEffect(() => {
-    const taskGroupsCollection = []
-
-    groupsCollection.forEach((group) => {
-      const { id, name } = group
-      const tasks = tasksCollection.filter((task) => group.taskIds.includes(task.id))
-      const newTaskGroup = { id, name, tasks }
-      taskGroupsCollection.push(newTaskGroup)
-    })
-    setTaskGroups(taskGroupsCollection)
-  }, [groupsCollection, tasksCollection])
-
-  const addNewTaskGroup = async (name) => {
-    if (name) {
-      await createTaskGroup(boardId, name)
-      refetchGroups()
-      refetchTasks()
-      setTaskGroupName('')
-    }
-  }
-
-  const addNewTask = async (e, groupId) => {
-    e.preventDefault()
-    const titleText = e.target.elements[`taskTitle-${groupId}`].value
-    if (titleText) {
-      await createTask(boardId, groupId, { name: titleText })
-      refetchGroups()
-      refetchTasks()
-      e.target.elements[`taskTitle-${groupId}`].value = ''
-    }
-  }
+  const fetchTaskGroups = React.useCallback(() => getTaskGroups(boardId), [boardId])
+  const toast = useToast()
+  const { data: taskGroups, refetch: refetchTaskGroups } = useData(fetchTaskGroups)
 
   return (
-    <Flex height="100vh" alignItems="center" justifyContent="center">
+    <Flex pos="absolute" left="0" right="0" top="0" bottom="0">
       {taskGroups.map((group) => (
-        <Flex
-          direction="column"
-          background="green.100"
-          p={12}
-          rounded={6}
-          mr={2}
-          ml={2}
+        <TaskGroupPreview
           key={group.id}
-        >
-          <Flex justifyContent="flex-end">
-            <Button
-              type="button"
-              onClick={async (event) => {
-                event.preventDefault()
-                await removeTaskGroup(group.id)
-                refetchGroups()
-              }}
-            >
-              <DeleteIcon />
-            </Button>
-          </Flex>
-          <Flex
-            direction="column"
-            alignItems="center"
-            justifyContent="center"
-            bg="red.200"
-            p={6}
-            mb={2}
-            rounded={6}
-          >
-            <Heading color="gray.50" mb={6}>
-              {group.name}
-            </Heading>
-          </Flex>
-          {group.tasks.map((task) => {
-            return (
-              <Flex direction="column" bg="gray.200" p={9} mb={2} key={task.id}>
-                <Text key={task.id}>{task.name}</Text>
-              </Flex>
-            )
-          })}
-          <form onSubmit={(e) => addNewTask(e, group.id)}>
-            <Input type="text" placeholder="Enter a title" id={`taskTitle-${group.id}`} />
-            <Button type="submit" m={2}>
-              <AddIcon w={3} h={3} mr={2} />
-              Add task
-            </Button>
-          </form>
-        </Flex>
+          taskGroupId={group.id}
+          boardId={boardId}
+          title={group.name}
+          taskGroupInfo={group.taskIds}
+          onRename={async (newTaskGroupName, closeModal) => {
+            if (newTaskGroupName) {
+              await updateTaskGroup(group.id, { name: newTaskGroupName })
+              closeModal()
+              refetchTaskGroups()
+              toast({
+                title: 'Taskgroup renamed.',
+                description: `We are renamed your taskgroup from ${group.name} to ${newTaskGroupName}.`,
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+              })
+            }
+          }}
+          onDelete={async (event) => {
+            event.preventDefault()
+            await removeTaskGroup(group.id)
+            refetchTaskGroups()
+          }}
+          onTaskConfirm={async (taskNewName) => {
+            if (taskNewName) {
+              await createTask(Number(boardId), group.id, { name: taskNewName })
+              refetchTaskGroups()
+            }
+          }}
+        />
       ))}
-      <Flex direction="column" background="green.100" p={6} rounded={6}>
+      <Flex direction="column" background="green.100" p={6} rounded={6} m={2}>
         <Input
           type="text"
           placeholder="Enter name for task list"
           onChange={(e) => setTaskGroupName(e.target.value)}
           value={taskGroupName}
+          backgroundColor="white"
+          mb={2}
         />
-        <Button colorScheme="green" onClick={() => addNewTaskGroup(taskGroupName)}>
+        <Button
+          colorScheme="green"
+          onClick={async () => {
+            if (taskGroupName) {
+              await createTaskGroup(Number(boardId), taskGroupName)
+              refetchTaskGroups()
+              setTaskGroupName('')
+            }
+          }}
+        >
           <AddIcon w={3} h={3} mr={2} />
           Add another lists
         </Button>
       </Flex>
     </Flex>
   )
+}
+
+TaskGroup.propTypes = {
+  boardId: PropTypes.string,
 }

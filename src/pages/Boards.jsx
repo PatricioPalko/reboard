@@ -1,9 +1,18 @@
 import * as React from 'react'
-import { Box, Center, Heading, Container, Grid, GridItem, Input, Button } from '@chakra-ui/react'
-import { Link } from 'react-router-dom'
-import { AddIcon, DeleteIcon } from '@chakra-ui/icons'
-import { createBoard, getBoards, removeBoard } from '../utils/api'
-import { ModalWindow } from '../components/ModalWindow'
+import {
+  Box,
+  Center,
+  Heading,
+  Container,
+  Grid,
+  GridItem,
+  Input,
+  Button,
+  useToast,
+} from '@chakra-ui/react'
+import { AddIcon } from '@chakra-ui/icons'
+import { createBoard, getBoards, removeBoard, updateBoard } from '../utils/api'
+import { BoardPreview } from '../components/BoardPreview'
 import { useData } from '../hooks/useData'
 
 const Boards = () => {
@@ -12,6 +21,8 @@ const Boards = () => {
   const fetchBoards = React.useCallback(() => getBoards(), [])
 
   const { data: boards, refetch: refetchBoards } = useData(fetchBoards)
+  // const [boardNewText, setBoardNewText] = React.useState('')
+  const toast = useToast()
 
   return (
     <>
@@ -72,52 +83,32 @@ const Boards = () => {
         <Grid templateRows="repeat(1, 1fr)" templateColumns="repeat(24, 1fr)" gap={6}>
           <GridItem colSpan={24} w="100%">
             <Box d="flex" flexWrap="wrap">
-              {boards?.map((item) => {
-                return (
-                  <Box
-                    boardId={item.id}
-                    as={Link}
-                    to={String(item.id)}
-                    pos="relative"
-                    maxW="sm"
-                    borderRadius="md"
-                    overflow="hidden"
-                    shadow="base"
-                    flex="0 0 25%"
-                    flexBasis="calc(25% - 24px)"
-                    m="3"
-                    minH="70px"
-                    _hover={{
-                      shadow: 'lg',
-                    }}
-                    key={item.id}
-                    p="5"
-                    borderWidth="3px"
-                    borderStyle="solid"
-                    borderColor="blue.400"
-                    fontWeight="semibold"
-                  >
-                    <ModalWindow boardTitle={item.name} id={item.id} />
-                    <Button
-                      type="button"
-                      pos="absolute"
-                      right="0"
-                      top="0"
-                      backgroundColor="transparent"
-                      size="xs"
-                      color="gray.500"
-                      onClick={async (event) => {
-                        event.preventDefault()
-                        await removeBoard(item.id)
-                        refetchBoards()
-                      }}
-                    >
-                      <DeleteIcon />
-                    </Button>
-                    {item.name}
-                  </Box>
-                )
-              })}
+              {boards?.map((item) => (
+                <BoardPreview
+                  key={item.id}
+                  linkTo={String(item.id)}
+                  title={item.name}
+                  onRename={async (newBoardName, closeModal) => {
+                    if (newBoardName) {
+                      await updateBoard(item.id, { name: newBoardName })
+                      closeModal()
+                      refetchBoards()
+                      toast({
+                        title: 'Board renamed.',
+                        description: `We are renamed your board from ${item.name} to ${newBoardName}.`,
+                        status: 'success',
+                        duration: 9000,
+                        isClosable: true,
+                      })
+                    }
+                  }}
+                  onDelete={async (event) => {
+                    event.preventDefault()
+                    await removeBoard(item.id)
+                    refetchBoards()
+                  }}
+                />
+              ))}
             </Box>
           </GridItem>
         </Grid>

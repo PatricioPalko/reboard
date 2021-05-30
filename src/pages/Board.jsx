@@ -15,29 +15,14 @@ const Board = () => {
   const fetchTaskGroups = React.useCallback(() => getTaskGroups(id), [id])
   const fetchTasks = React.useCallback(() => getTasks(id), [id])
 
-  const { data: groupsCollection, refetch: refetchGroups } = useData(fetchTaskGroups)
-  const { data: tasksCollection, refetch: refetchTasks } = useData(fetchTasks)
-
-  React.useEffect(() => {
-    try {
-      const fetchData = async () => {
-        const data = await getBoard(id)
-        setBoard(data)
-      }
-      fetchData()
-    } catch (e) {
-      // do nothing
-    }
-  }, [id])
-
   return (
-    <Box h="100vh">
+    <Box minH="100vh" pos="relative">
       <TaskGroup
         boardId={id}
-        groupsCollection={groupsCollection}
-        refetchGroups={refetchGroups}
-        tasksCollection={tasksCollection}
-        refetchTasks={refetchTasks}
+        // groupsCollection={groupsCollection}
+        // refetchGroups={refetchGroups}
+        // tasksCollection={tasksCollection}
+        // refetchTasks={refetchTasks}
       />
     </Box>
   )
