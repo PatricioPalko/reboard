@@ -48,6 +48,7 @@ export const BoardPreview = ({ linkTo, title, onRename, onDelete }) => {
         left="0"
         backgroundColor="transparent"
         size="xs"
+        color="gray.500"
         onClick={(event) => {
           event.preventDefault()
           onOpen()

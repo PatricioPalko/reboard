@@ -3,6 +3,7 @@ import * as React from 'react'
 
 export const useData = (getDataFn) => {
   const [data, setData] = React.useState([])
+  const [isLoading, setIsLoading] = React.useState(false)
 
   const fetchData = React.useCallback(async () => {
     const tmpdata = await getDataFn()
@@ -11,15 +12,19 @@ export const useData = (getDataFn) => {
 
   React.useEffect(() => {
     try {
+      setIsLoading(true)
       fetchData()
     } catch (e) {
       // do nothing
+    } finally {
+      setIsLoading(false)
     }
   }, [fetchData])
 
   return {
     data,
     refetch: fetchData,
+    isLoading,
   }
 }
 
