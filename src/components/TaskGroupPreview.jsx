@@ -1,7 +1,9 @@
+/* eslint-disable no-shadow */
 import * as React from 'react'
-import { Heading, Button, Flex, Input, useDisclosure, useToast } from '@chakra-ui/react'
+import { Heading, Button, Flex, Input, useDisclosure, useToast, Box } from '@chakra-ui/react'
 import { AddIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons'
 import PropTypes from 'prop-types'
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { ModalWindow } from './ModalWindow'
 import { getTasks, removeTask, updateTask } from '../utils/api'
 import { useData } from '../hooks'
@@ -21,6 +23,18 @@ export const TaskGroupPreview = ({
   const fetchTasks = React.useCallback(() => getTasks(boardId), [boardId])
   const { data: tasks, refetch: refetchTasks } = useData(fetchTasks)
   const [taskNewName, setTaskNewName] = React.useState('')
+
+  const [taskdnd, updateTaskdnd] = React.useState(tasks)
+
+  function handleOnDragEnd(result) {
+    if (!result.destination) return
+
+    const items = Array.from(taskdnd)
+    const [reorderedItem] = items.splice(result.source.index, 1)
+    items.splice(result.destination.index, 0, reorderedItem)
+
+    updateTaskdnd(items)
+  }
 
   return (
     <Flex
@@ -70,36 +84,55 @@ export const TaskGroupPreview = ({
           {title}
         </Heading>
       </Flex>
-      {tasks
-        // eslint-disable-next-line react/prop-types
-        .filter((task) => taskGroupInfo.includes(task.id))
-        .map((task) => {
-          return (
-            <TaskPreview
-              key={task.id}
-              title={task.name}
-              onRename={async (newTaskName, closeModal) => {
-                if (newTaskName) {
-                  await updateTask(task.id, { ...task, name: newTaskName })
-                  refetchTasks()
-                  closeModal()
-                  toast({
-                    title: 'Task renamed.',
-                    description: `We are renamed your task from ${task.name} to ${newTaskName}.`,
-                    status: 'success',
-                    duration: 9000,
-                    isClosable: true,
-                  })
-                }
-              }}
-              onDelete={async (event) => {
-                event.preventDefault()
-                await removeTask(boardId, task.id)
-                refetchTasks()
-              }}
-            />
-          )
-        })}
+      <DragDropContext onDragEnd={handleOnDragEnd}>
+        {tasks
+
+          // eslint-disable-next-line react/prop-types
+          .filter((task) => taskGroupInfo.includes(task.id))
+          .map((task, index) => {
+            return (
+              <Droppable droppableId={task.name}>
+                {(provided) => (
+                  <Box bg="red.200" {...provided.droppableProps} ref={provided.innerRef}>
+                    <Draggable key={task.id} draggableId={task.name} index={index}>
+                      {(provided) => (
+                        <div>
+                          <TaskPreview
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            // provided={provided}
+                            title={task.name}
+                            onRename={async (newTaskName, closeModal) => {
+                              if (newTaskName) {
+                                await updateTask(task.id, { ...task, name: newTaskName })
+                                refetchTasks()
+                                closeModal()
+                                toast({
+                                  title: 'Task renamed.',
+                                  description: `We are renamed your task from ${task.name} to ${newTaskName}.`,
+                                  status: 'success',
+                                  duration: 9000,
+                                  isClosable: true,
+                                })
+                              }
+                            }}
+                            onDelete={async (event) => {
+                              event.preventDefault()
+                              await removeTask(boardId, task.id)
+                              refetchTasks()
+                            }}
+                          />
+                        </div>
+                      )}
+                    </Draggable>
+                    {provided.placeholder}
+                  </Box>
+                )}
+              </Droppable>
+            )
+          })}
+      </DragDropContext>
       <Input
         type="text"
         placeholder="Name of new task"
