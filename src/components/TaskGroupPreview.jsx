@@ -23,16 +23,14 @@ export const TaskGroupPreview = ({
   const fetchTasks = React.useCallback(() => getTasks(boardId), [boardId])
   const { data: tasks, refetch: refetchTasks } = useData(fetchTasks)
   const [taskNewName, setTaskNewName] = React.useState('')
-
-  const [taskdnd, updateTaskdnd] = React.useState(tasks)
+  const [taskdnd, updateTaskdnd] = React.useState([])
 
   function handleOnDragEnd(result) {
+    console.log(result)
     if (!result.destination) return
-
     const items = Array.from(taskdnd)
     const [reorderedItem] = items.splice(result.source.index, 1)
     items.splice(result.destination.index, 0, reorderedItem)
-
     updateTaskdnd(items)
   }
 
@@ -93,14 +91,15 @@ export const TaskGroupPreview = ({
             return (
               <Droppable droppableId={task.name}>
                 {(provided) => (
-                  <Box bg="red.200" {...provided.droppableProps} ref={provided.innerRef}>
+                  <Box {...provided.droppableProps} ref={provided.innerRef}>
                     <Draggable key={task.id} draggableId={task.name} index={index}>
                       {(provided) => (
-                        <div>
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                        >
                           <TaskPreview
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
                             // provided={provided}
                             title={task.name}
                             onRename={async (newTaskName, closeModal) => {
