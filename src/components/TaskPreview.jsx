@@ -7,8 +7,18 @@ import { ModalWindow } from './ModalWindow'
 export const TaskPreview = ({ title, onRename, onDelete }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   return (
-    <Flex direction="column" bg="gray.200" p={9} mb={2} pos="relative">
-      <Text>{title}</Text>
+    <Flex
+      direction="column"
+      bg="gray.200"
+      p={7}
+      mb={2}
+      pos="relative"
+      shadow="lg"
+      border="1px"
+      borderColor="gray.500"
+      rounded={6}
+    >
+      <Text fontWeight="500">{title}</Text>
       <ModalWindow
         modalTitle={title}
         onConfirm={(newBoardName) => {
@@ -27,6 +37,12 @@ export const TaskPreview = ({ title, onRename, onDelete }) => {
         left="0"
         backgroundColor="transparent"
         size="xs"
+        _hover={{
+          bg: 'gray.300',
+        }}
+        _active={{
+          bg: 'gray.300',
+        }}
         onClick={(event) => {
           event.preventDefault()
           onOpen()
@@ -42,6 +58,12 @@ export const TaskPreview = ({ title, onRename, onDelete }) => {
         backgroundColor="transparent"
         size="xs"
         color="gray.500"
+        _hover={{
+          bg: 'gray.300',
+        }}
+        _active={{
+          bg: 'gray.300',
+        }}
         onClick={onDelete}
       >
         <DeleteIcon />

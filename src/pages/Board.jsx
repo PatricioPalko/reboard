@@ -16,7 +16,7 @@ const Board = () => {
   const fetchTasks = React.useCallback(() => getTasks(id), [id])
 
   return (
-    <Box minH="100vh" pos="relative">
+    <Box minH="calc(100vh - 80px)" pos="relative">
       <TaskGroup
         boardId={id}
         // groupsCollection={groupsCollection}
