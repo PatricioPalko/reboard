@@ -5,7 +5,7 @@
 ## Final Project Description
 
 Our goal was to build a simple task management tool similar to [Trello](https://trello.com/en).
-If you haven't heard about Trello up until now, now would be a good time to go check it out.
+If you haven't heard about Trello up until now, now would be a good time to go check it out. See final version here https://sp-reboard.herokuapp.com
 
 ## Project Overview
 
