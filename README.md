@@ -1,5 +1,7 @@
 # SP-reboard
 
+![screenshot](https://github.com/PatrikPalko/reboard/blob/main/src/assets/img/reboard.png)
+
 ## Final Project Description
 
 Our goal was to build a simple task management tool similar to [Trello](https://trello.com/en).
