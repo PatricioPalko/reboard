@@ -79,7 +79,7 @@ export const TaskGroup = ({ boardId }) => {
               onTaskConfirm={async (taskNewName) => {
                 if (taskNewName) {
                   await createTask(boardId, group.id, { name: taskNewName })
-                  refetchTaskGroups()
+                  await refetchTaskGroups()
                   toast({
                     title: `Task with title ${taskNewName} was created. 🎉`,
                     status: 'success',
